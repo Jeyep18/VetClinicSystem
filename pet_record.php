@@ -389,7 +389,7 @@
     <!-- Page Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; <?php echo date('Y'); ?> VetClinic Management System - Vaccination Module</p>
+            <p>&copy; <?php echo date('Y'); ?> PPL Paws and Tails VetClinic Management System <br> Vaccination Management System Prototype</p>
         </div>
     </footer>
     

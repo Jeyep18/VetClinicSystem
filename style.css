@@ -1,12 +1,12 @@
 :root {
     /* Primary Colors */
-    --primary-color: #00b63d;
-    --primary-dark: #008a35;
-    --primary-light: #90ef98;
+    --primary-color: #0082b6;
+    --primary-dark: #006e8a;
+    --primary-light: #90d9ef;
 
     /* Accent Colors */
-    --accent-color: #3dd800;
-    --accent-hover: #00c70a;
+    --accent-color: #00b8d8;
+    --accent-hover: #007ec7;
 
     /* Success/Error Colors */
     --success-color: #2d6a4f;
