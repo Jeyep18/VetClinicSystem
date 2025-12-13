@@ -4,25 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Pet Vaccination Record and History">
-    <title>VetClinic - Pet Vaccination Record</title>
+    <title>PPL Paws & Tails - Pet Vaccination Record</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <?php
-    /**
-     * ============================================================
-     * VETERINARY CLINIC MANAGEMENT SYSTEM - PET VACCINATION RECORD
-     * ============================================================
-     * This page provides:
-     * - Pet Details Header
-     * - Vaccination History Table
-     * - New Vaccination Form with Transaction
-     * ============================================================
+    /*
+     * PET VACCINATION RECORD
      */
     
     require_once 'db_connect.php';
     
-    // Initialize variables
     $message = '';
     $messageType = '';
     $pet = null;
@@ -30,7 +22,6 @@
     $vaccinationHistory = [];
     $veterinarians = [];
     
-    // Validate pet_id parameter
     if (!isset($_GET['pet_id']) || !is_numeric($_GET['pet_id'])) {
         header('Location: index.php');
         exit;
@@ -38,16 +29,16 @@
     
     $petId = intval($_GET['pet_id']);
     
-    // Get database connection
+    // Get connection
     $conn = getConnection();
     
     if (!$conn) {
         $message = "Database connection failed. Please check your configuration.";
         $messageType = "error";
     } else {
-        // ============================================================
+
         // LOAD PET AND OWNER INFORMATION
-        // ============================================================
+
         $sql = "SELECT p.Pet_ID, p.Pet_Name, p.Breed, p.Birthdate, p.Markings,
                        c.Client_ID, c.Firstname, c.Middlename, c.Lastname, c.Suffix, c.Address
                 FROM PET p
@@ -85,10 +76,11 @@
             exit;
         }
         
-        // ============================================================
         // LOAD VETERINARIANS FOR DROPDOWN
-        // ============================================================
-        $sql = "SELECT Vet_ID, Vet_Name FROM VETERINARIAN ORDER BY Vet_Name";
+
+        $sql = "SELECT Vet_ID, 
+                       Firstname || ' ' || NVL(Middlename || ' ', '') || Lastname || NVL(' ' || Suffix, '') AS Vet_Name 
+                FROM VETERINARIAN ORDER BY Lastname, Firstname";
         $stmt = oci_parse($conn, $sql);
         
         if (oci_execute($stmt)) {
@@ -98,13 +90,12 @@
         }
         oci_free_statement($stmt);
         
-        // ============================================================
         // LOAD VACCINATION HISTORY
-        // ============================================================
+        
         $sql = "SELECT v.Vaccination_ID, v.Vaccine_Name, v.Against, v.Manufacturer, 
                        v.Lot_No, v.Next_Schedule,
                        vr.Visit_ID, vr.Visit_Date, vr.Pet_Weight,
-                       vet.Vet_Name
+                       vet.Firstname || ' ' || NVL(vet.Middlename || ' ', '') || vet.Lastname || NVL(' ' || vet.Suffix, '') AS Vet_Name
                 FROM VACCINATION v
                 JOIN VISIT_RECORD vr ON v.Visit_ID = vr.Visit_ID
                 JOIN VETERINARIAN vet ON vr.Vet_ID = vet.Vet_ID
@@ -121,11 +112,10 @@
         }
         oci_free_statement($stmt);
         
-        // ============================================================
         // HANDLE NEW VACCINATION FORM SUBMISSION
-        // ============================================================
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_vaccination') {
-            // Get form data
+
             $weight = floatval($_POST['weight'] ?? 0);
             $vetId = intval($_POST['vet_id'] ?? 0);
             $vaccineName = trim($_POST['vaccine_name'] ?? '');
@@ -134,19 +124,17 @@
             $lotNo = trim($_POST['lot_no'] ?? '');
             $nextSchedule = $_POST['next_schedule'] ?? '';
             
-            // Validate required fields
+            // Validate fields
             if ($weight <= 0 || $vetId <= 0 || empty($vaccineName) || empty($lotNo)) {
                 $message = "Please fill in all required fields (Weight, Veterinarian, Vaccine Name, Lot No).";
                 $messageType = "error";
             } else {
-                // ============================================================
                 // TRANSACTION: Insert Visit Record and Vaccination
-                // ============================================================
                 $transactionSuccess = false;
                 $visitId = null;
                 
                 try {
-                    // Step 1: Insert into VISIT_RECORD and get the generated Visit_ID
+                    // Step 1: Insert into VISIT_RECORD and get generated Visit_ID
                     $sqlVisit = "INSERT INTO VISIT_RECORD (Visit_Date, Pet_Weight, Pet_ID, Vet_ID) 
                                  VALUES (SYSDATE, :weight, :pet_id, :vet_id)
                                  RETURNING Visit_ID INTO :visit_id";
@@ -203,7 +191,6 @@
                     }
                     
                 } catch (Exception $e) {
-                    // Rollback on any error
                     rollbackTransaction($conn);
                     $message = "Error saving vaccination: " . $e->getMessage();
                     $messageType = "error";
@@ -223,9 +210,12 @@
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <div>
-                    <h1>🏥 VetClinic Management System</h1>
-                    <p class="subtitle">Pet Vaccination Record</p>
+                <div class="header-brand">
+                    <img src="assets/Logo.svg" alt="PPL Paws & Tails Logo" class="header-logo">
+                    <div>
+                        <h1>PPL Paws & Tails VetClinic Management System</h1>
+                        <p class="subtitle">Pet Vaccination Record</p>
+                    </div>
                 </div>
                 <a href="index.php" class="btn btn-outline">← Back to Dashboard</a>
             </div>
@@ -241,9 +231,9 @@
         <?php endif; ?>
         
         <?php if ($pet): ?>
-        <!-- ============================================================ -->
+
         <!-- PET DETAILS HEADER -->
-        <!-- ============================================================ -->
+
         <section class="card pet-details">
             <div class="pet-header">
                 <div class="pet-avatar">🐾</div>
@@ -273,9 +263,9 @@
         </section>
         
         <div class="dashboard-grid">
-            <!-- ============================================================ -->
+            
             <!-- NEW VACCINATION FORM -->
-            <!-- ============================================================ -->
+            
             <section class="card">
                 <h2>💉 Record New Vaccination</h2>
                 <form method="POST" action="pet_record.php?pet_id=<?php echo $petId; ?>" class="form">
@@ -333,14 +323,14 @@
                     </div>
                     
                     <button type="submit" class="btn btn-primary btn-large">
-                        💉 Save Vaccination Record
+                        Save Vaccination Record
                     </button>
                 </form>
             </section>
             
-            <!-- ============================================================ -->
+            
             <!-- VACCINATION HISTORY -->
-            <!-- ============================================================ -->
+            
             <section class="card">
                 <h2>📋 Vaccination History</h2>
                 
@@ -404,7 +394,7 @@
     </footer>
     
     <?php
-    // Close database connection
+    // Close connection
     if ($conn) {
         closeConnection($conn);
     }

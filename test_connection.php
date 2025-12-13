@@ -49,7 +49,7 @@ if (extension_loaded('oci8')) {
         echo "<p style='color: green; font-weight: bold;'>✅ Successfully connected to Oracle!</p>";
         
         // Test query
-        $stmt = oci_parse($conn, "SELECT * FROM VETERINARIAN");
+        $stmt = oci_parse($conn, "SELECT Vet_ID, Firstname || ' ' || NVL(Middlename || ' ', '') || Lastname || NVL(' ' || Suffix, '') AS Vet_Name FROM VETERINARIAN");
         if (oci_execute($stmt)) {
             echo "<p>Query test passed. Veterinarians in database:</p>";
             echo "<ul>";

@@ -1,44 +1,26 @@
 <?php
 /**
- * ============================================================
  * VETERINARY CLINIC MANAGEMENT SYSTEM - DATABASE CONNECTION
- * ============================================================
  * Oracle Database connection using OCI8 driver
  * 
  * REQUIREMENTS:
- * - PHP OCI8 extension enabled
- * - Oracle Instant Client installed
- * ============================================================
+ * - PHP OCI8 extension 
+ * - Oracle Instant Client 
  */
 
-// ============================================================
 // DATABASE CONFIGURATION
-// ============================================================
-// Modify these values to match your Oracle database setup
-
-define('DB_USERNAME', 'vet_db');     // Oracle username
-define('DB_PASSWORD', 'vetclinic');     // Oracle password
-define('DB_CONNECTION', 'localhost/XE');    // Connection string
-
-// Alternative connection strings:
-// define('DB_CONNECTION', 'localhost:1521/XE');           // With port
-// define('DB_CONNECTION', '192.168.1.100/ORCL');          // Remote server
-// define('DB_CONNECTION', '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=XE)))');
-
-// ============================================================
-// DATABASE CONNECTION FUNCTION
-// ============================================================
+define('DB_USERNAME', 'vet_db');     
+define('DB_PASSWORD', 'vetclinic');     
+define('DB_CONNECTION', 'localhost/XE');    
 
 /**
- * Establishes a connection to the Oracle database
+ * Establishes connection to Oracle database
  * 
  * @return resource|false Returns connection resource on success, false on failure
  */
 function getConnection() {
-    // Attempt to connect to Oracle database
     $conn = oci_connect(DB_USERNAME, DB_PASSWORD, DB_CONNECTION, 'AL32UTF8');
     
-    // Check if connection was successful
     if (!$conn) {
         $error = oci_error();
         error_log("Oracle Connection Error: " . $error['message']);
@@ -49,7 +31,7 @@ function getConnection() {
 }
 
 /**
- * Closes an Oracle database connection
+ * Closes Oracle database connection
  * 
  * @param resource $conn The connection resource to close
  * @return bool Returns true on success
@@ -62,7 +44,7 @@ function closeConnection($conn) {
 }
 
 /**
- * Executes a SQL query and returns the statement
+ * Executes SQL query and returns the statement
  * 
  * @param resource $conn Database connection
  * @param string $sql SQL query to execute
@@ -71,7 +53,7 @@ function closeConnection($conn) {
  * @return resource|false Returns statement resource on success, false on failure
  */
 function executeQuery($conn, $sql, $binds = [], $autoCommit = false) {
-    // Parse the SQL statement
+    // Parse SQL statement
     $stmt = oci_parse($conn, $sql);
     
     if (!$stmt) {
@@ -80,12 +62,11 @@ function executeQuery($conn, $sql, $binds = [], $autoCommit = false) {
         return false;
     }
     
-    // Bind variables if provided
     foreach ($binds as $name => $value) {
         oci_bind_by_name($stmt, $name, $binds[$name], -1);
     }
     
-    // Execute the statement
+    // Execute statement
     $mode = $autoCommit ? OCI_COMMIT_ON_SUCCESS : OCI_NO_AUTO_COMMIT;
     $result = oci_execute($stmt, $mode);
     
@@ -99,7 +80,7 @@ function executeQuery($conn, $sql, $binds = [], $autoCommit = false) {
 }
 
 /**
- * Fetches all rows from a statement as associative array
+ * Fetches all rows from statement as associative array
  * 
  * @param resource $stmt Statement resource from executeQuery
  * @return array Array of rows
@@ -113,7 +94,7 @@ function fetchAll($stmt) {
 }
 
 /**
- * Commits the current transaction
+ * Commits current transaction
  * 
  * @param resource $conn Database connection
  * @return bool Returns true on success
@@ -123,7 +104,7 @@ function commitTransaction($conn) {
 }
 
 /**
- * Rolls back the current transaction
+ * Rolls back current transaction
  * 
  * @param resource $conn Database connection
  * @return bool Returns true on success
@@ -133,7 +114,7 @@ function rollbackTransaction($conn) {
 }
 
 /**
- * Gets the last error message from Oracle
+ * Gets last error message from Oracle
  * 
  * @param resource|null $resource Connection or statement resource
  * @return string Error message
@@ -144,7 +125,7 @@ function getOracleError($resource = null) {
 }
 
 /**
- * Formats a PHP date to Oracle date format
+ * Formats PHP date to Oracle date format
  * 
  * @param string $date Date string in Y-m-d format
  * @return string Oracle formatted date
@@ -152,11 +133,11 @@ function getOracleError($resource = null) {
 function toOracleDate($date) {
     if (empty($date)) return null;
     $timestamp = strtotime($date);
-    return date('d-M-Y', $timestamp); // DD-MON-YYYY format for Oracle
+    return date('d-M-Y', $timestamp); // DD-MON-YYYY format
 }
 
 /**
- * Formats an Oracle date to PHP/HTML date format
+ * Formats Oracle date to PHP/HTML date format
  * 
  * @param string $oracleDate Oracle date string
  * @return string PHP formatted date (Y-m-d)

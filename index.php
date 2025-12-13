@@ -3,32 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Veterinary Clinic Management System - Client and Pet Management Dashboard">
-    <title>VetClinic - Dashboard</title>
+    <meta name="description" content="PPL Paws & Tails VetClinic Management System - Vaccination Management Dashboard">
+    <title>PPL Paws & Tails Vaccination Module</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <?php
-    /**
-     * ============================================================
-     * VETERINARY CLINIC MANAGEMENT SYSTEM - MAIN DASHBOARD
-     * ============================================================
-     * This page provides:
-     * - Section A: New Client Registration
-     * - Section B: Client Search and Pet List
-     * ============================================================
-     */
-    
+    //VETERINARY CLINIC MANAGEMENT SYSTEM - MAIN DASHBOARD
+
     require_once 'db_connect.php';
     
-    // Initialize variables
     $message = '';
     $messageType = '';
     $searchResults = [];
     $selectedClientPets = [];
     $selectedClientName = '';
     
-    // Get database connection
+    // Get connection
     $conn = getConnection();
     
     if (!$conn) {
@@ -36,15 +27,12 @@
         $messageType = "error";
     }
     
-    // ============================================================
     // HANDLE FORM SUBMISSIONS
-    // ============================================================
     
-    // Handle New Client Registration
+    // New Client Registration
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         
         if ($_POST['action'] === 'register_client' && $conn) {
-            // Get form data and sanitize
             $firstname = trim($_POST['firstname'] ?? '');
             $middlename = trim($_POST['middlename'] ?? '');
             $lastname = trim($_POST['lastname'] ?? '');
@@ -80,7 +68,7 @@
         }
     }
     
-    // Handle Client Search
+    // Client Search
     if (isset($_GET['search']) && !empty($_GET['search']) && $conn) {
         $searchTerm = trim($_GET['search']);
         
@@ -102,7 +90,7 @@
         oci_free_statement($stmt);
     }
     
-    // Handle View Pets for a Client
+    // View Pets for a Client
     if (isset($_GET['client_id']) && $conn) {
         $clientId = intval($_GET['client_id']);
         
@@ -142,8 +130,13 @@
     <!-- Page Header -->
     <header class="header">
         <div class="container">
-            <h1>🏥 VetClinic Management System</h1>
-            <p class="subtitle">Vaccination Module Dashboard</p>
+            <div class="header-brand">
+                <img src="assets/Logo.svg" alt="PPL Paws & Tails Logo" class="header-logo">
+                <div>
+                    <h1>PPL Paws & Tails VetClinic Management System</h1>
+                    <p class="subtitle">Vaccination Module Dashboard</p>
+                </div>
+            </div>
         </div>
     </header>
     
@@ -156,9 +149,9 @@
         <?php endif; ?>
         
         <div class="dashboard-grid">
-            <!-- ============================================================ -->
-            <!-- SECTION A: NEW CLIENT REGISTRATION -->
-            <!-- ============================================================ -->
+
+            <!-- NEW CLIENT REGISTRATION -->
+
             <section class="card">
                 <h2>📝 New Client Registration</h2>
                 <form method="POST" action="index.php" class="form">
@@ -173,7 +166,7 @@
                         <div class="form-group">
                             <label for="middlename">Middle Name</label>
                             <input type="text" id="middlename" name="middlename" 
-                                   placeholder="Enter middle name" maxlength="50">
+                                   placeholder="Enter M.I." maxlength="50">
                         </div>
                     </div>
                     
@@ -193,16 +186,15 @@
                     <div class="form-group">
                         <label for="address">Address <span class="required">*</span></label>
                         <textarea id="address" name="address" required 
-                                  placeholder="Enter complete address" maxlength="200" rows="2"></textarea>
+                                  placeholder="Enter complete address (Street, Barangay, City)" maxlength="200" rows="2"></textarea>
                     </div>
                     
                     <button type="submit" class="btn btn-primary">Register Client</button>
                 </form>
             </section>
-            
-            <!-- ============================================================ -->
-            <!-- SECTION B: CLIENT SEARCH -->
-            <!-- ============================================================ -->
+
+            <!-- CLIENT SEARCH -->
+
             <section class="card">
                 <h2>🔍 Search Client</h2>
                 <form method="GET" action="index.php" class="form search-form">
@@ -260,9 +252,8 @@
             </section>
         </div>
         
-        <!-- ============================================================ -->
         <!-- PET LIST FOR SELECTED CLIENT -->
-        <!-- ============================================================ -->
+
         <?php if (isset($_GET['client_id'])): ?>
         <section class="card full-width">
             <div class="card-header">
@@ -310,12 +301,12 @@
     <!-- Page Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; <?php echo date('Y'); ?> VetClinic Management System - Vaccination Module</p>
+            <p>&copy; <?php echo date('Y'); ?> PPL Paws and Tails VetClinic Management System</p>
         </div>
     </footer>
     
     <?php
-    // Close database connection
+    // Close connection
     if ($conn) {
         closeConnection($conn);
     }

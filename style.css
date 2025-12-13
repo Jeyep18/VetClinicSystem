@@ -1,24 +1,13 @@
-/**
- * ============================================================
- * VETERINARY CLINIC MANAGEMENT SYSTEM - STYLESHEET
- * ============================================================
- * Clean, medical-themed CSS for a professional vet clinic UI
- * ============================================================
- */
-
-/* ============================================================
-   CSS VARIABLES - Design Tokens
-   ============================================================ */
 :root {
-    /* Primary Colors - Medical Blue Theme */
-    --primary-color: #0077b6;
-    --primary-dark: #005f8a;
-    --primary-light: #90e0ef;
-    
+    /* Primary Colors */
+    --primary-color: #00b63d;
+    --primary-dark: #008a35;
+    --primary-light: #90ef98;
+
     /* Accent Colors */
-    --accent-color: #00b4d8;
-    --accent-hover: #0096c7;
-    
+    --accent-color: #3dd800;
+    --accent-hover: #00c70a;
+
     /* Success/Error Colors */
     --success-color: #2d6a4f;
     --success-bg: #d8f3dc;
@@ -26,7 +15,7 @@
     --error-bg: #ffccd5;
     --warning-color: #e85d04;
     --warning-bg: #fff3cd;
-    
+
     /* Neutral Colors */
     --text-primary: #1a1a2e;
     --text-secondary: #4a4e69;
@@ -36,12 +25,12 @@
     --bg-card: #ffffff;
     --border-color: #dee2e6;
     --border-light: #e9ecef;
-    
+
     /* Shadows */
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-    
+
     /* Spacing */
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
@@ -49,13 +38,13 @@
     --spacing-lg: 1.5rem;
     --spacing-xl: 2rem;
     --spacing-2xl: 3rem;
-    
+
     /* Border Radius */
     --radius-sm: 6px;
     --radius-md: 10px;
     --radius-lg: 16px;
     --radius-full: 50%;
-    
+
     /* Typography */
     --font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
     --font-size-sm: 0.875rem;
@@ -63,16 +52,16 @@
     --font-size-lg: 1.125rem;
     --font-size-xl: 1.5rem;
     --font-size-2xl: 2rem;
-    
+
     /* Transitions */
     --transition-fast: 150ms ease;
     --transition-normal: 250ms ease;
 }
 
-/* ============================================================
-   BASE STYLES
-   ============================================================ */
-*, *::before, *::after {
+/* BASE STYLES */
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -92,18 +81,14 @@ body {
     min-height: 100vh;
 }
 
-/* ============================================================
-   LAYOUT
-   ============================================================ */
+/* LAYOUT */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 var(--spacing-lg);
 }
 
-/* ============================================================
-   HEADER
-   ============================================================ */
+/* HEADER */
 .header {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     color: white;
@@ -134,17 +119,28 @@ body {
     gap: var(--spacing-md);
 }
 
-/* ============================================================
-   MAIN CONTENT
-   ============================================================ */
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+}
+
+.header-logo {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0);
+    padding: var(--spacing-xs);
+}
+
+/* MAIN CONTENT */
 main.container {
     padding-top: var(--spacing-xl);
     padding-bottom: var(--spacing-2xl);
 }
 
-/* ============================================================
-   CARDS
-   ============================================================ */
+/* CARDS */
 .card {
     background: var(--bg-card);
     border-radius: var(--radius-lg);
@@ -181,9 +177,7 @@ main.container {
     width: 100%;
 }
 
-/* ============================================================
-   DASHBOARD GRID
-   ============================================================ */
+/* DASHBOARD GRID */
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -196,9 +190,7 @@ main.container {
     }
 }
 
-/* ============================================================
-   FORMS
-   ============================================================ */
+/* FORMS */
 .form {
     display: flex;
     flex-direction: column;
@@ -273,9 +265,7 @@ main.container {
     flex-wrap: wrap;
 }
 
-/* ============================================================
-   BUTTONS
-   ============================================================ */
+/* BUTTONS */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -347,9 +337,7 @@ main.container {
     font-size: var(--font-size-lg);
 }
 
-/* ============================================================
-   TABLES
-   ============================================================ */
+/* TABLES */
 .table-responsive {
     overflow-x: auto;
 }
@@ -398,9 +386,7 @@ main.container {
     border-bottom: none;
 }
 
-/* ============================================================
-   MESSAGES
-   ============================================================ */
+/* MESSAGES */
 .message {
     padding: var(--spacing-md) var(--spacing-lg);
     border-radius: var(--radius-md);
@@ -429,9 +415,7 @@ main.container {
     border: 1px solid var(--warning-color);
 }
 
-/* ============================================================
-   PET DETAILS SECTION
-   ============================================================ */
+/* PET DETAILS SECTION */
 .pet-details {
     background: linear-gradient(135deg, #ffffff 0%, var(--primary-light) 100%);
 }
@@ -494,9 +478,7 @@ main.container {
     color: var(--text-primary);
 }
 
-/* ============================================================
-   RESULTS & EMPTY STATES
-   ============================================================ */
+/* RESULTS & EMPTY STATES */
 .results-section {
     margin-top: var(--spacing-lg);
 }
@@ -519,9 +501,7 @@ main.container {
     font-weight: 600;
 }
 
-/* ============================================================
-   STATUS BADGES
-   ============================================================ */
+/* STATUS BADGES */
 .overdue {
     color: var(--error-color);
     font-weight: 600;
@@ -532,9 +512,7 @@ main.container {
     font-weight: 600;
 }
 
-/* ============================================================
-   INFO BANNER
-   ============================================================ */
+/* INFO BANNER */
 .info-banner {
     background: linear-gradient(135deg, var(--primary-light) 0%, #caf0f8 100%);
     border-left: 4px solid var(--primary-color);
@@ -549,11 +527,9 @@ main.container {
     font-size: var(--font-size-sm);
 }
 
-/* ============================================================
-   FOOTER
-   ============================================================ */
+/* FOOTER */
 .footer {
-    background: var(--text-primary);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     color: rgba(255, 255, 255, 0.7);
     padding: var(--spacing-lg) 0;
     text-align: center;
@@ -564,54 +540,51 @@ main.container {
     font-size: var(--font-size-sm);
 }
 
-/* ============================================================
-   RESPONSIVE ADJUSTMENTS
-   ============================================================ */
+/* RESPONSIVE ADJUSTMENTS */
 @media (max-width: 576px) {
     .header h1 {
         font-size: var(--font-size-xl);
     }
-    
+
     .card {
         padding: var(--spacing-lg);
     }
-    
+
     .form-row {
         grid-template-columns: 1fr;
     }
-    
+
     .pet-header {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .data-table {
         font-size: var(--font-size-sm);
     }
-    
+
     .data-table th,
     .data-table td {
         padding: var(--spacing-sm);
     }
 }
 
-/* ============================================================
-   PRINT STYLES
-   ============================================================ */
+/* PRINT STYLES */
 @media print {
+
     .header,
     .footer,
     .btn,
     form {
         display: none !important;
     }
-    
+
     .card {
         box-shadow: none;
         border: 1px solid #ccc;
         break-inside: avoid;
     }
-    
+
     body {
         background: white;
     }

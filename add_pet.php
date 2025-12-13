@@ -4,27 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Add New Pet Registration">
-    <title>VetClinic - Add New Pet</title>
+    <title>PPL Paws & Tails - Add New Pet</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <?php
-    /**
-     * ============================================================
-     * VETERINARY CLINIC MANAGEMENT SYSTEM - ADD NEW PET
-     * ============================================================
+    /*
+     * ADD NEW PET
      * This page allows registering a new pet for an existing client
-     * ============================================================
      */
     
     require_once 'db_connect.php';
     
-    // Initialize variables
     $message = '';
     $messageType = '';
     $client = null;
     
-    // Validate client_id parameter
+    // Validate client_id
     if (!isset($_GET['client_id']) || !is_numeric($_GET['client_id'])) {
         header('Location: index.php');
         exit;
@@ -32,7 +28,7 @@
     
     $clientId = intval($_GET['client_id']);
     
-    // Get database connection
+    // Get connection
     $conn = getConnection();
     
     if (!$conn) {
@@ -66,7 +62,7 @@
             exit;
         }
         
-        // Handle form submission
+        // form submission
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_pet') {
             $petName = trim($_POST['pet_name'] ?? '');
             $breed = trim($_POST['breed'] ?? '');
@@ -111,13 +107,16 @@
     }
     ?>
     
-    <!-- Page Header -->
+    <!-- Header -->
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <div>
-                    <h1>🏥 VetClinic Management System</h1>
-                    <p class="subtitle">Add New Pet</p>
+                <div class="header-brand">
+                    <img src="assets/Logo.svg" alt="PPL Paws & Tails Logo" class="header-logo">
+                    <div>
+                        <h1>PPL Paws & Tails VetClinic Management System</h1>
+                        <p class="subtitle">Add New Pet</p>
+                    </div>
                 </div>
                 <a href="index.php?client_id=<?php echo $clientId; ?>" class="btn btn-outline">← Back to Pets</a>
             </div>
@@ -177,7 +176,7 @@
                 
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary btn-large">
-                        🐾 Register Pet
+                        Register Pet
                     </button>
                     <a href="index.php?client_id=<?php echo $clientId; ?>" class="btn btn-secondary">
                         Cancel
@@ -191,12 +190,12 @@
     <!-- Page Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; <?php echo date('Y'); ?> VetClinic Management System - Vaccination Module</p>
+            <p>&copy; <?php echo date('Y'); ?> PPL Paws & Tails VetClinic Management System</p>
         </div>
     </footer>
     
     <?php
-    // Close database connection
+    // Close connection
     if ($conn) {
         closeConnection($conn);
     }
