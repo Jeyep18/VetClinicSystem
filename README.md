@@ -291,10 +291,10 @@ The system uses the following tables:
 
 - **Oracle 21c XE vs 10g XE**: This prototype uses Oracle 21c Express Edition, which has some syntax differences from Oracle 10g mentioned in the original paper
 - **Prototype Scope**: This implementation focuses on the vaccination recording functionality; a full vet clinic system would include additional features like appointments, inventory, and medical records
-- **Development Server**: The PHP built-in server (`php -S`) is for development only. Use Apache or Nginx for production
+- **Development Server**: The PHP built-in server (`php -S`) is for development only.
 
 ---
 
 ## License
 
-This project is for the requirements of Information Management Course in Atene de Naga University.
+This project is for the requirements of Information Management Course in Ateneo de Naga University.
