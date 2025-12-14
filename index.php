@@ -198,7 +198,7 @@
             <!-- NEW CLIENT REGISTRATION -->
 
             <section class="card">
-                <h2>📝 New Client Registration</h2>
+                <h2><img src="assets/icons/file-person.svg" alt="" class="section-icon"> New Client Registration</h2>
                 <form method="POST" action="index.php" class="form">
                     <input type="hidden" name="action" value="register_client">
                     
@@ -249,7 +249,7 @@
             <!-- CLIENT SEARCH -->
 
             <section class="card">
-                <h2>🔍 Search Client</h2>
+                <h2><img src="assets/icons/search.svg" alt="" class="section-icon"> Search Client</h2>
                 <form method="GET" action="index.php" class="form search-form">
                     <div class="form-group">
                         <label for="search">Search by Name</label>
@@ -311,7 +311,7 @@
         <?php if (isset($_GET['client_id'])): ?>
         <section class="card full-width">
             <div class="card-header">
-                <h2>🐾 Pets for: <?php echo htmlspecialchars($selectedClientName); ?></h2>
+                <h2><img src="assets/icons/pet-svgrepo-com.svg" alt="" class="section-icon"> Pets for: <?php echo htmlspecialchars($selectedClientName); ?></h2>
                 <a href="add_pet.php?client_id=<?php echo intval($_GET['client_id']); ?>" 
                    class="btn btn-primary">+ Add New Pet</a>
             </div>

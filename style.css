@@ -134,6 +134,24 @@ body {
     padding: var(--spacing-xs);
 }
 
+/* Section Icons */
+.section-icon {
+    width: 1.2em;
+    height: 1.2em;
+    vertical-align: middle;
+    margin-right: 0.3em;
+    display: inline-block;
+    /* Filter to convert black to primary color (#0082b6) */
+    filter: invert(38%) sepia(93%) saturate(1352%) hue-rotate(166deg) brightness(91%) contrast(101%);
+}
+
+/* Avatar Icon */
+.avatar-icon {
+    width: 50px;
+    height: 50px;
+    filter: brightness(0) invert(1);
+}
+
 /* MAIN CONTENT */
 main.container {
     padding-top: var(--spacing-xl);
@@ -289,7 +307,6 @@ main.container {
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
@@ -311,7 +328,6 @@ main.container {
 }
 
 .btn-accent:hover {
-    background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-color) 100%);
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
@@ -628,21 +644,25 @@ main.container {
     align-items: center;
     padding: var(--spacing-lg);
     border-bottom: 1px solid var(--border-light);
-    background: linear-gradient(135deg, var(--primary-light) 0%, #caf0f8 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .modal-header h3 {
     margin: 0;
-    color: var(--primary-dark);
+    color: white;
     font-size: var(--font-size-xl);
+}
+
+.modal-header h3 .section-icon {
+    filter: brightness(0) invert(1);
 }
 
 .modal-close {
     background: none;
     border: none;
     font-size: 1.75rem;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
     padding: 0;
     line-height: 1;
@@ -650,7 +670,7 @@ main.container {
 }
 
 .modal-close:hover {
-    color: var(--error-color);
+    color: white;
 }
 
 .modal-body {

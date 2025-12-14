@@ -140,7 +140,7 @@
         
         <!-- Add Pet Form -->
         <section class="card">
-            <h2>🐾 Pet Information</h2>
+            <h2><img src="assets/icons/pet-svgrepo-com.svg" alt="" class="section-icon"> Pet Information</h2>
             <form method="POST" action="add_pet.php?client_id=<?php echo $clientId; ?>" class="form">
                 <input type="hidden" name="action" value="add_pet">
                 

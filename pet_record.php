@@ -283,7 +283,7 @@
 
         <section class="card pet-details">
             <div class="pet-header">
-                <div class="pet-avatar">🐾</div>
+                <div class="pet-avatar"><img src="assets/icons/pet-svgrepo-com.svg" alt="Pet" class="avatar-icon"></div>
                 <div class="pet-info">
                     <h2><?php echo htmlspecialchars($pet['name']); ?></h2>
                     <p class="pet-breed"><?php echo htmlspecialchars($pet['breed'] ?? 'Unknown Breed'); ?></p>
@@ -314,7 +314,7 @@
             <!-- NEW VACCINATION FORM -->
             
             <section class="card">
-                <h2>💉 Record New Vaccination</h2>
+                <h2><img src="assets/icons/injection-inject-vaccine-svgrepo-com.svg" alt="" class="section-icon"> Record New Vaccination</h2>
                 <form method="POST" action="pet_record.php?pet_id=<?php echo $petId; ?>" class="form">
                     <input type="hidden" name="action" value="add_vaccination">
                     
@@ -379,7 +379,7 @@
             <!-- VACCINATION HISTORY -->
             
             <section class="card">
-                <h2>📋 Vaccination History</h2>
+                <h2><img src="assets/icons/paper-document-svgrepo-com.svg" alt="" class="section-icon"> Vaccination History</h2>
                 
                 <?php if (!empty($vaccinationHistory)): ?>
                 <div class="table-responsive">
@@ -466,7 +466,7 @@
     <div id="paymentModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>💳 Process Payment</h3>
+                <h3><img src="assets/icons/credit-card.svg" alt="" class="section-icon"> Process Payment</h3>
                 <button type="button" class="modal-close" onclick="closePaymentModal()">&times;</button>
             </div>
             <form method="POST" action="pet_record.php?pet_id=<?php echo $petId; ?>" class="form">
@@ -513,7 +513,7 @@
     <div id="receiptModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>🧾 Payment Receipt</h3>
+                <h3><img src="assets/icons/paper-document-svgrepo-com.svg" alt="" class="section-icon"> Payment Receipt</h3>
                 <button type="button" class="modal-close" onclick="closeReceiptModal()">&times;</button>
             </div>
             <div class="modal-body receipt-body">
