@@ -9,9 +9,7 @@
 </head>
 <body>
     <?php
-    /*
-     * PET VACCINATION RECORD
-     */
+    // PET VACCINATION RECORD
     
     require_once 'db_connect.php';
     
@@ -259,9 +257,9 @@
             <div class="header-content">
                 <div class="header-brand">
                     <img src="assets/Logo.svg" alt="PPL Paws & Tails Logo" class="header-logo">
-                    <div>
-                        <h1>PPL Paws & Tails VetClinic Management System</h1>
-                        <p class="subtitle">Pet Vaccination Record</p>
+                    <div class="header-text">
+                        <h1>PPL Paws & Tails</h1>
+                        <p class="subtitle">Vaccination Management System</p>
                     </div>
                 </div>
                 <a href="index.php" class="btn btn-outline">← Back to Dashboard</a>

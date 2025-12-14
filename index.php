@@ -103,7 +103,7 @@
         }
     }
     
-    // Client Search - Load all clients on page load, filter when search query is entered
+    // Client Search
     if ($conn) {
         $searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
         
@@ -175,12 +175,15 @@
     <!-- Page Header -->
     <header class="header">
         <div class="container">
-            <div class="header-brand">
-                <img src="assets/Logo.svg" alt="PPL Paws & Tails Logo" class="header-logo">
-                <div>
-                    <h1>PPL Paws & Tails VetClinic Management System</h1>
-                    <p class="subtitle">Vaccination Module Dashboard</p>
+            <div class="header-content">
+                <div class="header-brand">
+                    <img src="assets/Logo.svg" alt="PPL Paws & Tails Logo" class="header-logo">
+                    <div class="header-text">
+                        <h1>PPL Paws & Tails</h1>
+                        <p class="subtitle">Vaccination Management System</p>
+                    </div>
                 </div>
+                <p class="header-motto">"Compassionate care for your furry friends."</p>
             </div>
         </div>
     </header>
@@ -242,7 +245,7 @@
                         </div>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">Register Client</button>
+                    <button type="submit" class="btn btn-primary btn-large">Register Client</button>
                 </form>
             </section>
 
@@ -263,6 +266,7 @@
                 </form>
                 
                 <!-- Client List -->
+                 
                 <?php if (!empty($searchResults)): ?>
                 <?php $searchTerm = trim($_GET['search'] ?? ''); ?>
                 <h3 class="results-heading"><?php echo $searchTerm ? 'Search Results' : 'Registered Clients'; ?> (<?php echo count($searchResults); ?> found)</h3>
