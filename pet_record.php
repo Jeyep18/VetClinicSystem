@@ -95,10 +95,13 @@
         $sql = "SELECT v.Vaccination_ID, v.Vaccine_Name, v.Against, v.Manufacturer, 
                        v.Lot_No, v.Next_Schedule,
                        vr.Visit_ID, vr.Visit_Date, vr.Pet_Weight,
-                       vet.Firstname || ' ' || NVL(vet.Middlename || ' ', '') || vet.Lastname || NVL(' ' || vet.Suffix, '') AS Vet_Name
+                       vet.Firstname || ' ' || NVL(vet.Middlename || ' ', '') || vet.Lastname || NVL(' ' || vet.Suffix, '') AS Vet_Name,
+                       NVL(p.Payment_Status, 'PENDING') AS Payment_Status,
+                       p.Payment_ID, p.Amount, p.Payment_Method, p.Payment_Date
                 FROM VACCINATION v
                 JOIN VISIT_RECORD vr ON v.Visit_ID = vr.Visit_ID
                 JOIN VETERINARIAN vet ON vr.Vet_ID = vet.Vet_ID
+                LEFT JOIN PAYMENT p ON vr.Visit_ID = p.Visit_ID
                 WHERE vr.Pet_ID = :pet_id
                 ORDER BY vr.Visit_Date DESC, v.Vaccination_ID DESC";
         
@@ -198,9 +201,53 @@
             }
         }
         
+        // HANDLE PAYMENT FORM SUBMISSION
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'process_payment') {
+            $visitId = intval($_POST['visit_id'] ?? 0);
+            $amount = floatval($_POST['amount'] ?? 0);
+            $paymentMethod = trim($_POST['payment_method'] ?? '');
+            $paymentDate = $_POST['payment_date'] ?? '';
+            
+            // Validate fields
+            if ($visitId <= 0 || $amount <= 0 || empty($paymentMethod)) {
+                $message = "Please fill in all required payment fields.";
+                $messageType = "error";
+            } else {
+                // Insert payment record
+                $sql = "INSERT INTO PAYMENT (Visit_ID, Amount, Payment_Method, Payment_Date, Payment_Status) 
+                        VALUES (:visit_id, :amount, :payment_method, 
+                                " . ($paymentDate ? "TO_DATE(:payment_date, 'YYYY-MM-DD')" : "SYSDATE") . ", 
+                                'PAID')";
+                
+                $stmt = oci_parse($conn, $sql);
+                oci_bind_by_name($stmt, ':visit_id', $visitId);
+                oci_bind_by_name($stmt, ':amount', $amount);
+                oci_bind_by_name($stmt, ':payment_method', $paymentMethod);
+                if ($paymentDate) {
+                    oci_bind_by_name($stmt, ':payment_date', $paymentDate);
+                }
+                
+                if (oci_execute($stmt, OCI_COMMIT_ON_SUCCESS)) {
+                    header("Location: pet_record.php?pet_id=$petId&payment_success=1");
+                    exit;
+                } else {
+                    $error = oci_error($stmt);
+                    $message = "Error processing payment: " . $error['message'];
+                    $messageType = "error";
+                }
+                oci_free_statement($stmt);
+            }
+        }
+        
         // Check for success redirect
         if (isset($_GET['success'])) {
             $message = "Vaccination record saved successfully!";
+            $messageType = "success";
+        }
+        
+        if (isset($_GET['payment_success'])) {
+            $message = "Payment processed successfully!";
             $messageType = "success";
         }
     }
@@ -347,6 +394,8 @@
                                 <th>Weight</th>
                                 <th>Vet</th>
                                 <th>Next Due</th>
+                                <th>Payment Status</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -373,6 +422,26 @@
                                         N/A
                                     <?php endif; ?>
                                 </td>
+                                <td>
+                                    <?php if ($record['PAYMENT_STATUS'] === 'PAID'): ?>
+                                        <span class="status-badge status-paid">PAID</span>
+                                    <?php else: ?>
+                                        <span class="status-badge status-pending">PENDING</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($record['PAYMENT_STATUS'] === 'PAID'): ?>
+                                        <button type="button" class="btn btn-small btn-secondary" 
+                                                onclick="showReceipt(<?php echo $record['VISIT_ID']; ?>, '<?php echo date('M d, Y', strtotime($record['PAYMENT_DATE'])); ?>', <?php echo $record['AMOUNT']; ?>, '<?php echo htmlspecialchars($record['PAYMENT_METHOD']); ?>')">
+                                            View Receipt
+                                        </button>
+                                    <?php else: ?>
+                                        <button type="button" class="btn btn-small btn-accent" 
+                                                onclick="openPaymentModal(<?php echo $record['VISIT_ID']; ?>, '<?php echo htmlspecialchars($record['VACCINE_NAME']); ?>')">
+                                            Pay Now
+                                        </button>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -393,6 +462,137 @@
         </div>
     </footer>
     
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>💳 Process Payment</h3>
+                <button type="button" class="modal-close" onclick="closePaymentModal()">&times;</button>
+            </div>
+            <form method="POST" action="pet_record.php?pet_id=<?php echo $petId; ?>" class="form">
+                <input type="hidden" name="action" value="process_payment">
+                <input type="hidden" name="visit_id" id="payment_visit_id">
+                
+                <div class="modal-body">
+                    <p class="modal-info">Processing payment for: <strong id="payment_vaccine_name"></strong></p>
+                    
+                    <div class="form-group">
+                        <label for="amount">Amount (₱) <span class="required">*</span></label>
+                        <input type="number" id="amount" name="amount" required 
+                               placeholder="Enter amount" step="0.01" min="0.01" max="99999.99">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="payment_method">Payment Method <span class="required">*</span></label>
+                        <select id="payment_method" name="payment_method" required>
+                            <option value="">-- Select Method --</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Credit Card">Credit Card</option>
+                            <option value="Debit Card">Debit Card</option>
+                            <option value="Gcash">Gcash</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="payment_date">Payment Date</label>
+                        <input type="date" id="payment_date" name="payment_date" 
+                               value="<?php echo date('Y-m-d'); ?>"
+                               max="<?php echo date('Y-m-d'); ?>">
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closePaymentModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Confirm Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🧾 Payment Receipt</h3>
+                <button type="button" class="modal-close" onclick="closeReceiptModal()">&times;</button>
+            </div>
+            <div class="modal-body receipt-body">
+                <div class="receipt-row">
+                    <span class="receipt-label">Visit ID:</span>
+                    <span id="receipt_visit_id" class="receipt-value"></span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Payment Date:</span>
+                    <span id="receipt_date" class="receipt-value"></span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Amount:</span>
+                    <span id="receipt_amount" class="receipt-value"></span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Payment Method:</span>
+                    <span id="receipt_method" class="receipt-value"></span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Status:</span>
+                    <span class="receipt-value"><span class="status-badge status-paid">PAID</span></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeReceiptModal()">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Payment Modal Functions
+        function openPaymentModal(visitId, vaccineName) {
+            document.getElementById('payment_visit_id').value = visitId;
+            document.getElementById('payment_vaccine_name').textContent = vaccineName;
+            document.getElementById('amount').value = '';
+            document.getElementById('payment_method').value = '';
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+        
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+        
+        // Receipt Modal Functions
+        function showReceipt(visitId, paymentDate, amount, paymentMethod) {
+            document.getElementById('receipt_visit_id').textContent = visitId;
+            document.getElementById('receipt_date').textContent = paymentDate;
+            document.getElementById('receipt_amount').textContent = '₱' + parseFloat(amount).toFixed(2);
+            document.getElementById('receipt_method').textContent = paymentMethod;
+            document.getElementById('receiptModal').style.display = 'flex';
+        }
+        
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('paymentModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePaymentModal();
+            }
+        });
+        
+        document.getElementById('receiptModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReceiptModal();
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePaymentModal();
+                closeReceiptModal();
+            }
+        });
+    </script>
+    
     <?php
     // Close connection
     if ($conn) {
@@ -401,3 +601,4 @@
     ?>
 </body>
 </html>
+

@@ -38,49 +38,94 @@
             $lastname = trim($_POST['lastname'] ?? '');
             $suffix = trim($_POST['suffix'] ?? '');
             $address = trim($_POST['address'] ?? '');
+            $contactNumber = trim($_POST['contact_number'] ?? '');
             
             // Validate required fields
             if (empty($firstname) || empty($lastname) || empty($address)) {
                 $message = "Please fill in all required fields (First Name, Last Name, Address).";
                 $messageType = "error";
             } else {
-                // Insert new client into database
-                $sql = "INSERT INTO CLIENT (Firstname, Middlename, Lastname, Suffix, Address) 
-                        VALUES (:firstname, :middlename, :lastname, :suffix, :address)";
-                
-                $stmt = oci_parse($conn, $sql);
-                oci_bind_by_name($stmt, ':firstname', $firstname);
-                oci_bind_by_name($stmt, ':middlename', $middlename);
-                oci_bind_by_name($stmt, ':lastname', $lastname);
-                oci_bind_by_name($stmt, ':suffix', $suffix);
-                oci_bind_by_name($stmt, ':address', $address);
-                
-                if (oci_execute($stmt, OCI_COMMIT_ON_SUCCESS)) {
-                    $message = "Client '$firstname $lastname' registered successfully!";
-                    $messageType = "success";
-                } else {
-                    $error = oci_error($stmt);
-                    $message = "Error registering client: " . $error['message'];
+                // Use transaction to insert client and contact number
+                try {
+                    $clientId = null;
+                    
+                    // Step 1: Insert into CLIENT and get the generated Client_ID
+                    $sql = "INSERT INTO CLIENT (Firstname, Middlename, Lastname, Suffix, Address) 
+                            VALUES (:firstname, :middlename, :lastname, :suffix, :address)
+                            RETURNING Client_ID INTO :client_id";
+                    
+                    $stmt = oci_parse($conn, $sql);
+                    oci_bind_by_name($stmt, ':firstname', $firstname);
+                    oci_bind_by_name($stmt, ':middlename', $middlename);
+                    oci_bind_by_name($stmt, ':lastname', $lastname);
+                    oci_bind_by_name($stmt, ':suffix', $suffix);
+                    oci_bind_by_name($stmt, ':address', $address);
+                    oci_bind_by_name($stmt, ':client_id', $clientId, 20);
+                    
+                    $resultClient = oci_execute($stmt, OCI_NO_AUTO_COMMIT);
+                    
+                    if (!$resultClient) {
+                        throw new Exception("Failed to create client record");
+                    }
+                    oci_free_statement($stmt);
+                    
+                    // Step 2: Insert into CLIENT_CONTACT if contact number provided
+                    if (!empty($contactNumber)) {
+                        $sqlContact = "INSERT INTO CLIENT_CONTACT (Client_ID, Contact_Number) 
+                                       VALUES (:client_id, :contact_number)";
+                        
+                        $stmtContact = oci_parse($conn, $sqlContact);
+                        oci_bind_by_name($stmtContact, ':client_id', $clientId);
+                        oci_bind_by_name($stmtContact, ':contact_number', $contactNumber);
+                        
+                        $resultContact = oci_execute($stmtContact, OCI_NO_AUTO_COMMIT);
+                        
+                        if (!$resultContact) {
+                            throw new Exception("Failed to save contact number");
+                        }
+                        oci_free_statement($stmtContact);
+                    }
+                    
+                    // Step 3: Commit the transaction
+                    if (commitTransaction($conn)) {
+                        $message = "Client '$firstname $lastname' registered successfully!";
+                        $messageType = "success";
+                    } else {
+                        throw new Exception("Failed to commit transaction");
+                    }
+                    
+                } catch (Exception $e) {
+                    rollbackTransaction($conn);
+                    $message = "Error registering client: " . $e->getMessage();
                     $messageType = "error";
                 }
-                oci_free_statement($stmt);
             }
         }
     }
     
-    // Client Search
-    if (isset($_GET['search']) && !empty($_GET['search']) && $conn) {
-        $searchTerm = trim($_GET['search']);
+    // Client Search - Load all clients on page load, filter when search query is entered
+    if ($conn) {
+        $searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
         
-        $sql = "SELECT Client_ID, Firstname, Middlename, Lastname, Suffix, Address 
-                FROM CLIENT 
-                WHERE UPPER(Lastname) LIKE UPPER(:search) 
-                   OR UPPER(Firstname) LIKE UPPER(:search)
-                ORDER BY Lastname, Firstname";
-        
-        $stmt = oci_parse($conn, $sql);
-        $searchPattern = '%' . $searchTerm . '%';
-        oci_bind_by_name($stmt, ':search', $searchPattern);
+        if (!empty($searchTerm)) {
+            // Filter by search term
+            $sql = "SELECT Client_ID, Firstname, Middlename, Lastname, Suffix, Address 
+                    FROM CLIENT 
+                    WHERE UPPER(Lastname) LIKE UPPER(:search) 
+                       OR UPPER(Firstname) LIKE UPPER(:search)
+                    ORDER BY Client_ID";
+            
+            $stmt = oci_parse($conn, $sql);
+            $searchPattern = '%' . $searchTerm . '%';
+            oci_bind_by_name($stmt, ':search', $searchPattern);
+        } else {
+            // Load all clients on initial page load
+            $sql = "SELECT Client_ID, Firstname, Middlename, Lastname, Suffix, Address 
+                    FROM CLIENT 
+                    ORDER BY Client_ID";
+            
+            $stmt = oci_parse($conn, $sql);
+        }
         
         if (oci_execute($stmt)) {
             while ($row = oci_fetch_assoc($stmt)) {
@@ -183,10 +228,18 @@
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="address">Address <span class="required">*</span></label>
-                        <textarea id="address" name="address" required 
-                                  placeholder="Enter complete address (Street, Barangay, City)" maxlength="200" rows="2"></textarea>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="address">Address <span class="required">*</span></label>
+                            <textarea id="address" name="address" required 
+                                      placeholder="Enter complete address (Street, Barangay, City)" maxlength="200" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact_number">Contact Number</label>
+                            <input type="tel" id="contact_number" name="contact_number" 
+                                   placeholder="e.g., 09171234567" maxlength="20"
+                                   pattern="[0-9]{10,11}">
+                        </div>
                     </div>
                     
                     <button type="submit" class="btn btn-primary">Register Client</button>
@@ -209,10 +262,11 @@
                     </div>
                 </form>
                 
-                <!-- Search Results -->
+                <!-- Client List -->
                 <?php if (!empty($searchResults)): ?>
+                <?php $searchTerm = trim($_GET['search'] ?? ''); ?>
+                <h3 class="results-heading"><?php echo $searchTerm ? 'Search Results' : 'Registered Clients'; ?> (<?php echo count($searchResults); ?> found)</h3>
                 <div class="results-section">
-                    <h3>Search Results (<?php echo count($searchResults); ?> found)</h3>
                     <table class="data-table">
                         <thead>
                             <tr>

@@ -1,9 +1,8 @@
 <?php
 /**
- * PHP Info & Oracle Connection Test
- * Access this at: http://localhost:8080/test_connection.php
+ * http://localhost:8080/test_connection.php
  */
-echo "<h1>VetClinic - Connection Test</h1>";
+echo "<h1>Connection Test</h1>";
 echo "<hr>";
 // Check PHP version
 echo "<h2>1. PHP Version</h2>";
