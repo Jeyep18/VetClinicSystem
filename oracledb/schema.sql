@@ -260,7 +260,7 @@ INSERT INTO CLIENT_CONTACT (Client_ID, Contact_Number) VALUES (3, '09991112233')
 INSERT INTO CLIENT_CONTACT (Client_ID, Contact_Number) VALUES (4, '09185556789');
 INSERT INTO CLIENT_CONTACT (Client_ID, Contact_Number) VALUES (5, '09064443322');
 
--- Pets (Various breeds common in Philippines)
+-- Pets
 INSERT INTO PET (Owner_ID, Pet_Name, Breed, Birthdate, Markings) 
 VALUES (1, 'Bantay', 'Aspin', DATE '2021-03-15', 'Brown with white chest, floppy ears');
 INSERT INTO PET (Owner_ID, Pet_Name, Breed, Birthdate, Markings) 
